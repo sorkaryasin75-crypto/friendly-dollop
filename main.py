@@ -16,8 +16,8 @@ from telegram.ext import (
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "8773492019:AAEJD2EvVgUgtaNvJyD-9goqA8hknG-tY58")
 ADMIN_TELEGRAM_ID = 6582650458  # আপনার টেলিগ্রাম UID[span_0](start_span)[span_0](end_span)
 FIREBASE_KEY_PATH = "config/firebase_key.json"
-FIREBASE_DB_URL = os.environ.get("FIREBASE_DB_URL", "https://sell-point-it-default-rtdb.firebaseio.com/")
-BLOGSPOT_WEBAPP_URL = "https://economyshops.blogspot.com"  # আপনার ব্লগার ওয়েব অ্যাপ URL
+FIREBASE_DB_URL = os.environ.get("FIREBASE_DB_URL", "https://sell-point-it-default-rtdb.firebaseio.com")
+BLOGSPOT_WEBAPP_URL = "https://moneyloop24.blogspot.com"  # আপনার ব্লগার ওয়েব অ্যাপ URL
 
 logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
 
