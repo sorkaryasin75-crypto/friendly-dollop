@@ -11,9 +11,16 @@ from telegram.ext import (
 )
 
 # --- ১. কনফিগারেশন ---
-BOT_TOKEN = "8773492019:AAEJD2EvVgUgtaNvJyD-9goqA8hknG-tY58"  # আপনার বট টোকেন দিন
-ADMIN_TELEGRAM_ID = 6819070790  # আপনার টেলিগ্রাম UID
+BOT_TOKEN = "8773492019:AAEJD2EvVgUgtaNvJyD-9goqA8hknG-tY58"
+ADMIN_TELEGRAM_ID = 6819070790
 DB_NAME = "bot_database.db"
+
+# 🔴 এখানে আপনার এডমিন অ্যাপ ইউজারনেমগুলো লিখে দিন (যেখানে ট্রাফিক কয়েন পাঠাবে)
+ADMIN_RECEIVING_ACCOUNTS = {
+    "niva": "sell_point_it",       # Niva App-এর এডমিন ইউজারনেম
+    "NewTop": "AdminNewTopID",   # NewTop App-এর এডমিন ইউজারনেম
+    "ns": "himelorkar019"            # NS Coin-এর এডমিন ইউজারনেম/আইডি
+}
 
 logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
 
@@ -22,7 +29,6 @@ def init_db():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     
-    # কয়েন টেবিল (দাম ও স্ট্যাটাস রাখার জন্য)
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS coins (
             key TEXT PRIMARY KEY,
@@ -32,13 +38,11 @@ def init_db():
         )
     ''')
     
-    # প্রাথমিক কয়েনের ডাটা
     cursor.execute("INSERT OR IGNORE INTO coins VALUES ('niva', 'Niva Coin', 5.0, 1)")
     cursor.execute("INSERT OR IGNORE INTO coins VALUES ('NewTop', 'NewTop Coin', 3.0, 1)")
     cursor.execute("INSERT OR IGNORE INTO coins VALUES ('topfollows', 'Topfollows Coin', 3.0, 1)")
     cursor.execute("INSERT OR IGNORE INTO coins VALUES ('ns', 'NS Coin', 8.0, 1)")
 
-    # লেনদেন হিস্ট্রি টেবিল
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS transactions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -49,6 +53,7 @@ def init_db():
             payment_method TEXT,
             account_number TEXT,
             net_taka REAL,
+            coin_info TEXT,
             status TEXT
         )
     ''')
@@ -74,13 +79,13 @@ def update_coin_price(key, new_price):
     conn.commit()
     conn.close()
 
-def add_transaction(user_id, user_name, coin_label, coin_amount, method, number, net_taka):
+def add_transaction(user_id, user_name, coin_label, coin_amount, method, number, net_taka, coin_info):
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     cursor.execute('''
-        INSERT INTO transactions (user_id, user_name, coin_label, coin_amount, payment_method, account_number, net_taka, status)
-        VALUES (?, ?, ?, ?, ?, ?, ?, 'Pending')
-    ''', (user_id, user_name, coin_label, coin_amount, method, number, net_taka))
+        INSERT INTO transactions (user_id, user_name, coin_label, coin_amount, payment_method, account_number, net_taka, coin_info, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Pending')
+    ''', (user_id, user_name, coin_label, coin_amount, method, number, net_taka, coin_info))
     tx_id = cursor.lastrowid
     conn.commit()
     conn.close()
@@ -96,7 +101,7 @@ def update_tx_status(tx_id, status):
 def get_tx(tx_id):
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
-    cursor.execute("SELECT user_id, coin_label, coin_amount, payment_method, account_number, net_taka, status FROM transactions WHERE id = ?", (tx_id,))
+    cursor.execute("SELECT user_id, coin_label, coin_amount, payment_method, account_number, net_taka, status, coin_info FROM transactions WHERE id = ?", (tx_id,))
     row = cursor.fetchone()
     conn.close()
     return row
@@ -104,7 +109,7 @@ def get_tx(tx_id):
 def get_user_history(user_id):
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
-    cursor.execute("SELECT id, coin_label, coin_amount, net_taka, status FROM transactions WHERE user_id = ? ORDER BY id DESC LIMIT 10", (user_id,))
+    cursor.execute("SELECT id, coin_label, coin_amount, net_taka, status, coin_info FROM transactions WHERE user_id = ? ORDER BY id DESC LIMIT 10", (user_id,))
     rows = cursor.fetchall()
     conn.close()
     return rows
@@ -148,7 +153,7 @@ async def handle_callbacks(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if data == "main_menu":
         await start(update, context)
 
-    # --- লাইভ রেট (Realtime SQLite থেকে লোড হবে) ---
+    # --- লাইভ রেট ---
     elif data == "menu_rates":
         coins = get_coins()
         text = "📊 **Live Market Rates (প্রতি ১০০০ কয়েন):**\n\n"
@@ -170,10 +175,22 @@ async def handle_callbacks(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif data.startswith("sell_"):
         key = data.split("_")[1]
         context.user_data["selected_coin"] = key
-        context.user_data["step"] = "AWAITING_AMOUNT"
-        await query.edit_message_text("ধাপ ১: কত পরিমাণ কয়েন বিক্রি করতে চান লিখুন (যেমন: 50000):")
+        
+        # ট্রাফিককে এডমিন আইডি দেখানো এবং প্রেরক তথ্য চাওয়া
+        if key == "topfollows":
+            context.user_data["step"] = "AWAITING_COUPON"
+            await query.edit_message_text("✏️ **ধাপ ১:** আপনার Topfollow **Coupon Code**-টি দিন:")
+        else:
+            admin_acc = ADMIN_RECEIVING_ACCOUNTS.get(key, "AdminID")
+            context.user_data["step"] = "AWAITING_USERNAME"
+            msg = (
+                f"📥 **কয়েন পাঠানোর অ্যাকাউন্ট:** `{admin_acc}`\n\n"
+                f"প্রথমে অ্যাপ থেকে উপরের ইউজারনেমে কয়েন সেন্ড করুন।\n"
+                f"তারপর **ধাপ ১:** যে আইডি থেকে কয়েন পাঠিয়েছেন সেই **প্রেরক ইউজারনেম (Sender Username)**-টি লিখুন:"
+            )
+            await query.edit_message_text(msg, parse_mode="Markdown")
 
-    # --- লিডারবোর্ড (Public Leaderboard) ---
+    # --- লিডারবোর্ড ---
     elif data == "menu_leaderboard":
         lb = get_leaderboard()
         text = "🏆 **Public Leaderboard (Top Sellers)**\n\n"
@@ -181,10 +198,10 @@ async def handle_callbacks(update: Update, context: ContextTypes.DEFAULT_TYPE):
             text += "এখনো কোনো সফল লেনদেন হয়নি।"
         else:
             for idx, row in enumerate(lb, start=1):
-                text += f"{idx}. **{row[0]}** — {row[1]:,} Coins ({row[2]} 次 Sales)\n"
+                text += f"{idx}. **{row[0]}** — {row[1]:,} Coins ({row[2]} Sales)\n"
         await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back", callback_data="main_menu")]]), parse_mode="Markdown")
 
-    # --- পার্সোনাল হিস্ট্রি (My History) ---
+    # --- পার্সোনাল হিস্ট্রি ---
     elif data == "menu_history":
         history = get_user_history(user_id)
         text = "📜 **আপনার পার্সোনাল সেল হিস্ট্রি:**\n\n"
@@ -193,10 +210,11 @@ async def handle_callbacks(update: Update, context: ContextTypes.DEFAULT_TYPE):
         else:
             for row in history:
                 st_icon = "⏳" if row[4] == "Pending" else ("✅" if row[4] == "Accepted" else "❌")
-                text += f"🆔 `#{row[0]}` | **{row[1]}**\n📦 পরিমাণ: {row[2]:,} | 💰 {row[3]} ৳\nস্ট্যাটাস: {st_icon} **{row[4]}**\n----------------------\n"
+                info_text = f"🔑 কুপন: `{row[5]}`" if "topfollows" in str(row[1]).lower() else f"👤 প্রেরক আইডি: `{row[5]}`"
+                text += f"🆔 `#{row[0]}` | **{row[1]}**\n{info_text}\n📦 পরিমাণ: {row[2]:,} | 💰 {row[3]} ৳\nস্ট্যাটাস: {st_icon} **{row[4]}**\n----------------------\n"
         await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back", callback_data="main_menu")]]), parse_mode="Markdown")
 
-    # --- এডমিন প্যানেল একসেপ্ট / রিজেক্ট বাটন ---
+    # --- এডমিন একসেপ্ট / রিজেক্ট বাটন ---
     elif data.startswith("admin_accept_") or data.startswith("admin_reject_"):
         if user_id != ADMIN_TELEGRAM_ID:
             return
@@ -218,23 +236,22 @@ async def handle_callbacks(update: Update, context: ContextTypes.DEFAULT_TYPE):
         elif action == "accept":
             context.user_data["pending_tx_id"] = tx_id
             context.user_data["admin_step"] = "AWAITING_PROOF"
-            await query.edit_message_text(query.message.text + "\n\n📸 **কাস্টমারকে পেমেন্ট করে স্ক্রিনশটটি এই চ্যাটে সেন্ড করুন (Caption এ কিছু লেখার প্রয়োজন নেই):**")
+            await query.edit_message_text(query.message.text + "\n\n📸 **কাস্টমারকে পেমেন্ট করে স্ক্রিনশটটি এই চ্যাটে সেন্ড করুন:**")
 
-    # --- এডমিন প্রাইস চেঞ্জ সিলেক্ট ---
     elif data.startswith("adm_p_"):
         if user_id != ADMIN_TELEGRAM_ID: return
         key = data.split("_")[2]
         context.user_data["admin_coin_key"] = key
         context.user_data["admin_step"] = "AWAITING_NEW_PRICE"
-        await query.edit_message_text(f"✏️ নতুন দাম লিখুন (প্রতি ১০০০ কয়েন):")
+        await query.edit_message_text("✏️ নতুন দাম লিখুন (প্রতি ১০০০ কয়েন):")
 
-# --- ৫. ইনপুট হ্যান্ডলার (টেক্সট ও ছবি) ---
+# --- ৫. ইনপুট হ্যান্ডলার ---
 async def handle_inputs(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     admin_step = context.user_data.get("admin_step")
     step = context.user_data.get("step")
 
-    # --- এডমিন দ্বারা স্ক্রিনশট আপলোড প্রসেস ---
+    # এডমিন স্ক্রিনশট প্রসেস
     if user_id == ADMIN_TELEGRAM_ID and admin_step == "AWAITING_PROOF" and update.message.photo:
         tx_id = context.user_data.get("pending_tx_id")
         photo_file_id = update.message.photo[-1].file_id
@@ -249,28 +266,33 @@ async def handle_inputs(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"📦 **পরিমাণ:** {tx[2]:,}\n"
             f"💰 **পেমেন্ট পরিমাণ:** {tx[5]} ৳\n"
             f"📱 **মেথড/নম্বর:** {tx[3]} ({tx[4]})\n\n"
-            f"প্রমাণস্বরূপ পেমেন্ট স্ক্রিনশটটি উপরে দেওয়া হলো।"
+            f"প্রমাণস্বরূপ পেমেন্ট স্ক্রিনশটটি দেওয়া হলো।"
         )
-        # ট্রাফিকের কাছে পেমেন্ট স্ক্রিনশট সহ বার্তা পাঠানো
         await context.bot.send_photo(chat_id=tx[0], photo=photo_file_id, caption=msg, parse_mode="Markdown")
         await update.message.reply_text("✅ **পেমেন্ট স্ক্রিনশট ট্রাফিকের কাছে সফলভাবে পৌঁছে দেওয়া হয়েছে!**")
         context.user_data["admin_step"] = None
         return
 
-    # --- এডমিন প্রাইস আপডেট ---
+    # এডমিন প্রাইস আপডেট
     if user_id == ADMIN_TELEGRAM_ID and admin_step == "AWAITING_NEW_PRICE" and update.message.text:
         try:
             new_p = float(update.message.text.strip())
             key = context.user_data.get("admin_coin_key")
             update_coin_price(key, new_p)
             context.user_data["admin_step"] = None
-            await update.message.reply_text(f"✅ **দাম রিয়েলটাইমে আপডেট করে ডাটাবেজে সেভ করা হয়েছে!**")
+            await update.message.reply_text("✅ **দাম রিয়েলটাইমে আপডেট করে ডাটাবেজে সেভ করা হয়েছে!**")
         except ValueError:
             await update.message.reply_text("⚠️ সঠিক সংখ্যা লিখুন:")
         return
 
-    # --- ইউজার ইনপুট প্রসেস (অ্যামাউন্ট, মেথড, নম্বর) ---
-    if step == "AWAITING_AMOUNT" and update.message.text:
+    # ১. ইউজারনেম / কুপন গ্রহণ
+    if step in ["AWAITING_USERNAME", "AWAITING_COUPON"] and update.message.text:
+        context.user_data["coin_info"] = update.message.text.strip()
+        context.user_data["step"] = "AWAITING_AMOUNT"
+        await update.message.reply_text("ধাপ ২: কত পরিমাণ কয়েন বিক্রি করতে চান লিখুন (যেমন: 50000):")
+
+    # ২. কয়েন পরিমাণ
+    elif step == "AWAITING_AMOUNT" and update.message.text:
         try:
             amt = int(update.message.text.strip())
             if amt < 50000:
@@ -278,15 +300,17 @@ async def handle_inputs(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 return
             context.user_data["amount"] = amt
             context.user_data["step"] = "AWAITING_METHOD"
-            await update.message.reply_text("ধাপ ২: পেমেন্ট মেথড লিখুন (যেমন: বিকাশ / নগদ / রকেট):")
+            await update.message.reply_text("ধাপ ৩: পেমেন্ট মেথড লিখুন (যেমন: বিকাশ / নগদ / রকেট):")
         except ValueError:
             await update.message.reply_text("⚠️ সংখ্যা লিখুন:")
 
+    # ৩. পেমেন্ট মেথড
     elif step == "AWAITING_METHOD" and update.message.text:
         context.user_data["method"] = update.message.text.strip()
         context.user_data["step"] = "AWAITING_NUMBER"
-        await update.message.reply_text("ধাপ ৩: পেমেন্ট নেওয়ার অ্যাকাউন্ট নম্বরটি লিখুন:")
+        await update.message.reply_text("ধাপ ৪: পেমেন্ট নেওয়ার অ্যাকাউন্ট নম্বরটি লিখুন:")
 
+    # ৪. নম্বর ও সাবমিট
     elif step == "AWAITING_NUMBER" and update.message.text:
         num = update.message.text.strip()
         coins = get_coins()
@@ -294,11 +318,12 @@ async def handle_inputs(update: Update, context: ContextTypes.DEFAULT_TYPE):
         c = coins[key]
         amt = context.user_data["amount"]
         method = context.user_data["method"]
+        coin_info = context.user_data.get("coin_info", "N/A")
 
         net_taka = max(0, (amt / 1000) * c["price"] - 5)
         context.user_data["step"] = None
 
-        tx_id = add_transaction(user_id, update.effective_user.first_name, c["label"], amt, method, num, net_taka)
+        tx_id = add_transaction(user_id, update.effective_user.first_name, c["label"], amt, method, num, net_taka, coin_info)
 
         await update.message.reply_text(
             f"⏳ **আপনার সেল রিকোয়েস্ট জমা হয়েছে!**\n\nID: `#{tx_id}`\nএডমিন এটি যাচাই করে পেমেন্ট করবে।",
@@ -306,12 +331,13 @@ async def handle_inputs(update: Update, context: ContextTypes.DEFAULT_TYPE):
             parse_mode="Markdown"
         )
 
-        # এডমিন বক্সে বার্তা পাঠানো
+        info_label = "🎟 **Coupon Code:**" if key == "topfollows" else "👤 **Sender Username:**"
         admin_msg = (
             f"🚨 **নতুন কয়েন সেল রিকোয়েস্ট!**\n\n"
             f"🆔 **TX ID:** `#{tx_id}`\n"
             f"👤 **ইউজার:** {update.effective_user.first_name} (`{user_id}`)\n"
             f"🪙 **কয়েন:** {c['label']}\n"
+            f"{info_label} `{coin_info}`\n"
             f"📦 **পরিমাণ:** {amt:,}\n"
             f"📱 **পেমেন্ট:** {method} (`{num}`)\n"
             f"💰 **দেয় টাকা:** `{net_taka} ৳`\n\n"
@@ -322,7 +348,7 @@ async def handle_inputs(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ])
         await context.bot.send_message(chat_id=ADMIN_TELEGRAM_ID, text=admin_msg, reply_markup=btn, parse_mode="Markdown")
 
-# --- ৬. এডমিন প্যানেল কমান্ড (`/admin`) ---
+# --- ৬. এডমিন প্যানেল ---
 async def admin_panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id != ADMIN_TELEGRAM_ID:
         return
@@ -347,4 +373,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-            
+                
