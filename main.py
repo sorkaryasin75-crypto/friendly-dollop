@@ -140,7 +140,7 @@ def get_main_keyboard():
     ])
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    text = "👋 **Earning Elevated**-এ আপনাকে স্বাগতম!\n\nনিচের অপশনগুলো থেকে আপনার লেনদেন পরিচালনা করুন:"
+    text = "👋 **Sell Point IT**-এ আপনাকে স্বাগতম!\n\nনিচের অপশনগুলো থেকে আপনার লেনদেন পরিচালনা করুন:"
     if update.message:
         await update.message.reply_text(text, reply_markup=get_main_keyboard(), parse_mode="Markdown")
     else:
@@ -311,8 +311,8 @@ async def handle_inputs(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif step == "AWAITING_AMOUNT" and update.message.text:
         try:
             amt = int(update.message.text.strip())
-            if amt < 50000:
-                await update.message.reply_text("⚠️ সর্বনিম্ন ৫০,০০০ কয়েন দিতে হবে।")
+            if amt < 10000:
+                await update.message.reply_text("⚠️ সর্বনিম্ন ১০,০০০ কয়েন দিতে হবে।")
                 return
             context.user_data["amount"] = amt
             context.user_data["step"] = "AWAITING_METHOD"
