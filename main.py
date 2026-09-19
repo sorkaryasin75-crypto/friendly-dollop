@@ -506,7 +506,7 @@ async def handle_inputs(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def auto_ping_task(application: Application):
     """প্রতি ৮৬৪০০ সেকেন্ড পর পর ব্রডকাস্ট মেসেজ পাঠাবে এবং ১২০ সেকেন্ড পর তা ডিলেট করে দেবে।"""
     while True:
-        await asyncio.sleep(5)
+        await asyncio.sleep(86400)
         users = get_all_users()
         ping_text = "⚡ **Bot Status:** System Active & Online! 🟢"
         
