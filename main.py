@@ -242,9 +242,9 @@ async def handle_callbacks(update: Update, context: ContextTypes.DEFAULT_TYPE):
             admin_acc = c.get("recv_acc", "N/A")
             context.user_data["step"] = "AWAITING_USERNAME"
             msg = (
-                f"📥 **এডমিনের কয়েন রিসিভিং আইডি:** `{admin_acc}`\n\n"
-                f"প্রথমে অ্যাপ থেকে উপরের আইডি/ইউজারনেমে কয়েন সেন্ড করুন।\n"
-                f"তারপর **ধাপ ১:** যে আইডি থেকে কয়েন পাঠিয়েছেন সেই **প্রেরক ইউজারনেম (Sender Username)**-টি লিখুন:"
+                f"📥 এডমিনের কয়েন রিসিভিং আইডি:`{admin_acc}`\n\n"
+                f"প্রথমে অ্যাপ থেকে উপরের ইউজারনেমে কয়েন সেন্ড করুন।\n"
+                f"♻️যে আইডি থেকে কয়েন পাঠিয়েছেন সেই ইউজারনেম (Sender Username) -টি পেস্ট করুন:"
             )
             await query.edit_message_text(msg, parse_mode="Markdown")
 
@@ -377,7 +377,7 @@ async def handle_inputs(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"নম্বর: `{tx[4]}`\n"
             f"💰 **পেমেন্টকৃত টাকা:** `{tx[5]} ৳`\n"
             f"━━━━━━━━━━━━━━━━━━━\n"
-            f"প্রমাণস্বরূপ নিচে পেমেন্ট স্ক্রিনশটটি প্রদান করা হলো।"
+            f"প্রমাণস্বরূপ পেমেন্ট স্ক্রিনশটটি প্রদান করা হলো।"
         )
         
         await context.bot.send_photo(
@@ -431,7 +431,7 @@ async def handle_inputs(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if step in ["AWAITING_USERNAME", "AWAITING_COUPON"] and update.message.text:
         context.user_data["coin_info"] = update.message.text.strip()
         context.user_data["step"] = "AWAITING_AMOUNT"
-        await update.message.reply_text("✏️ **ধাপ ২:** কত পরিমাণ কয়েন বিক্রি করতে চান লিখুন (যেমন: 50000):")
+        await update.message.reply_text("✏️ কত পরিমাণ কয়েন বিক্রি করতে চান লিখুন (যেমন: 10000):")
 
     # ২. কয়েন পরিমাণ
     elif step == "AWAITING_AMOUNT" and update.message.text:
@@ -450,7 +450,7 @@ async def handle_inputs(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif step == "AWAITING_METHOD" and update.message.text:
         context.user_data["method"] = update.message.text.strip()
         context.user_data["step"] = "AWAITING_NUMBER"
-        await update.message.reply_text("✏️ **ধাপ ৪:** পেমেন্ট নেওয়ার অ্যাকাউন্ট নম্বরটি লিখুন:")
+        await update.message.reply_text("✏️ বিকাশ নগদ রকেট নম্বরটি লিখুন:")
 
     # ৪. নম্বর গ্রহণ ও নোটিফিকেশন
     elif step == "AWAITING_NUMBER" and update.message.text:
@@ -481,7 +481,7 @@ async def handle_inputs(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"📞 **নম্বর:** `{num}`\n"
             f"💰 **প্রাপ্য টাকা:** `{net_taka} ৳` (চার্জ -৫৳)\n"
             f"━━━━━━━━━━━━━━━━━━━\n"
-            f"⏳ এডমিন অতি শীঘ্রই কয়েন ভেরিফাই করে আপনার ওয়ালেটে পেমেন্ট সম্পন্ন করবে।"
+            f"⏳ এডমিন অতি শীঘ্রই কয়েন ভেরিফাই করে আপনার নাম্বারে পেমেন্ট সম্পন্ন করবে।"
         )
 
         await update.message.reply_text(user_msg, reply_markup=get_main_keyboard(), parse_mode="Markdown")
@@ -502,19 +502,19 @@ async def handle_inputs(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ])
         await context.bot.send_message(chat_id=ADMIN_TELEGRAM_ID, text=admin_msg, reply_markup=btn, parse_mode="Markdown")
 
-# --- ৭. ৫ সেকেণ্ড অটো মেসেজ ও ৩ সেকেণ্ডে রিমুভ ব্যাকগ্রাউন্ড টাস্ক ---
+# --- ৭. ৮৬,৪০০ সেকেণ্ড অটো মেসেজ ও ১২০ সেকেণ্ডে রিমুভ ব্যাকগ্রাউন্ড টাস্ক ---
 async def auto_ping_task(application: Application):
-    """প্রতি ৫ সেকেন্ড পর পর ব্রডকাস্ট মেসেজ পাঠাবে এবং ৩ সেকেন্ড পর তা ডিলেট করে দেবে।"""
+    """প্রতি ৮৬৪০০ সেকেন্ড পর পর ব্রডকাস্ট মেসেজ পাঠাবে এবং ১২০ সেকেন্ড পর তা ডিলেট করে দেবে।"""
     while True:
-        await asyncio.sleep(5)
+        await asyncio.sleep(86400)
         users = get_all_users()
         ping_text = "⚡ **Bot Status:** System Active & Online! 🟢"
         
         for u_id in users:
             try:
                 msg = await application.bot.send_message(chat_id=u_id, text=ping_text, parse_mode="Markdown")
-                # ৩ সেকেন্ড পর মেসেজ অটো ডিলেট
-                asyncio.create_task(delete_msg_after_delay(application, u_id, msg.message_id, 3))
+                # ১২০ সেকেন্ড পর মেসেজ অটো ডিলেট
+                asyncio.create_task(delete_msg_after_delay(application, u_id, msg.message_id, 120))
             except Exception:
                 pass
 
