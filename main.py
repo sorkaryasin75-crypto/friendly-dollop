@@ -384,7 +384,7 @@ async def handle_inputs(update: Update, context: ContextTypes.DEFAULT_TYPE):
             chat_id=tx[0], 
             photo=photo_file_id, 
             caption=msg, 
-            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🏠 Main Menu", callback_data="main_menu")]]),
+            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🏠 Start Menu", callback_data="start")]]),
             parse_mode="Markdown"
         )
         await update.message.reply_text("✅ **পেমেন্ট ডিটেইলস ও প্রুফ কাস্টমারের কাছে সফলভাবে পাঠানো হয়েছে!**")
