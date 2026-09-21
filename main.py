@@ -502,11 +502,11 @@ async def handle_inputs(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ])
         await context.bot.send_message(chat_id=ADMIN_TELEGRAM_ID, text=admin_msg, reply_markup=btn, parse_mode="Markdown")
 
-# --- ৭. ৮৬৪০০ সেকেণ্ড অটো মেসেজ ও ১২০ সেকেণ্ডে রিমুভ ব্যাকগ্রাউন্ড টাস্ক ---
+# --- ৭. ৪০০ সেকেণ্ড অটো মেসেজ ও ১২০ সেকেণ্ডে রিমুভ ব্যাকগ্রাউন্ড টাস্ক ---
 async def auto_ping_task(application: Application):
-    """প্রতি ৮৬৪০০ সেকেন্ড পর পর ব্রডকাস্ট মেসেজ পাঠাবে এবং ১২০ সেকেন্ড পর তা ডিলেট করে দেবে।"""
+    """প্রতি ৪০০ সেকেন্ড পর পর ব্রডকাস্ট মেসেজ পাঠাবে এবং ১২০ সেকেন্ড পর তা ডিলেট করে দেবে।"""
     while True:
-        await asyncio.sleep(86400)
+        await asyncio.sleep(5)
         users = get_all_users()
         ping_text = "⚡ **Bot Status:** System Active & Online! 🟢"
         
