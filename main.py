@@ -27,43 +27,50 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
 
-# --- ২. বহুভাষিক টেক্সট অভিধান (Default English) ---
+# --- ২. বহুভাষিক টেক্সট অভিধান (Telegram Custom Premium Emojis Supported) ---
 MESSAGES = {
     "en": {
-        "welcome": "<b>👋 Welcome to Sell Point IT!</b>\n\n<i>Please select an option from the menu keyboard below to start trading:</i>",
-        "rates_title": "📊 <b>LIVE MARKET RATES (Per 1000 Coins):</b>\n\n",
+        "welcome": (
+            "<b><tg-emoji emoji-id='5368324170671202286'>👋</tg-emoji> Welcome to Sell Point IT!</b>\n\n"
+            "<i>Please select an option from the menu keyboard below to start trading:</i>"
+        ),
+        "rates_title": "<tg-emoji emoji-id='5368324170671202286'>📊</tg-emoji> <b>LIVE MARKET RATES (Per 1000 Coins):</b>\n\n",
         "active": "🟢 Active",
         "inactive": "🔴 Inactive",
-        "sell_title": "🛒 <b>SELECT COIN TO SELL:</b>\n<i>(Minimum amount: 10,000)</i>",
-        "enter_coupon": "🔑 <b>STEP 1: Enter your Coupon Code below:</b>",
-        "enter_username": "📥 <b>Admin's Receiving ID:</b> <code>{acc}</code>\n\n<i>First send coins to the receiving ID above.</i>\n♻️ <b>Enter your Sender Username below:</b>",
-        "enter_amount": "💰 <b>SELECT OR ENTER COIN AMOUNT:</b>\n<i>(Minimum 10,000)</i>",
-        "enter_custom_amount": "✏️ <b>Type custom coin amount (e.g., 15000):</b>",
+        "sell_title": "<tg-emoji emoji-id='5368324170671202286'>🛒</tg-emoji> <b>SELECT COIN TO SELL:</b>\n<i>(Minimum amount: 10,000)</i>",
+        "enter_coupon": "<tg-emoji emoji-id='5368324170671202286'>🔑</tg-emoji> <b>STEP 1: Enter your Coupon Code below:</b>",
+        "enter_username": (
+            "<tg-emoji emoji-id='5368324170671202286'>📥</tg-emoji> <b>Admin's Receiving ID:</b> <code>{acc}</code>\n\n"
+            "<i>First send coins to the receiving ID above.</i>\n"
+            "<tg-emoji emoji-id='5368324170671202286'>♻️</tg-emoji> <b>Enter your Sender Username below:</b>"
+        ),
+        "enter_amount": "<tg-emoji emoji-id='5368324170671202286'>💰</tg-emoji> <b>SELECT OR ENTER COIN AMOUNT:</b>\n<i>(Minimum 10,000)</i>",
+        "enter_custom_amount": "<tg-emoji emoji-id='5368324170671202286'>✏️</tg-emoji> <b>Type custom coin amount (e.g., 15000):</b>",
         "min_amount_err": "⚠️ <i>Minimum amount must be 10,000 coins.</i>",
         "num_err": "⚠️ <i>Please enter a valid number:</i>",
-        "enter_method": "📱 <b>SELECT PAYMENT METHOD:</b>",
-        "enter_number": "📞 <b>SELECT OR ENTER WALLET NUMBER:</b>",
-        "enter_custom_number": "✏️ <b>Enter your mobile/account number:</b>",
+        "enter_method": "<tg-emoji emoji-id='5368324170671202286'>📱</tg-emoji> <b>SELECT PAYMENT METHOD:</b>",
+        "enter_number": "<tg-emoji emoji-id='5368324170671202286'>📞</tg-emoji> <b>SELECT OR ENTER WALLET NUMBER:</b>",
+        "enter_custom_number": "<tg-emoji emoji-id='5368324170671202286'>✏️</tg-emoji> <b>Enter your mobile/account number:</b>",
         "tx_success": (
-            "<b>┌──────────────────────────────┐</b>\n"
-            "<b>│  🎉 SALE REQUEST SUBMITTED!  │</b>\n"
-            "<b>└──────────────────────────────┘</b>\n\n"
-            "🆔 <b>TRANSACTION ID :</b> <code>#{tx_id}</code>\n"
-            "🪙 <b>COIN TYPE      :</b> <b>{coin}</b>\n"
-            "📦 <b>COIN AMOUNT    :</b> <b>{amt:,}</b>\n"
-            "📱 <b>PAYMENT METHOD :</b> <b>{method}</b>\n"
-            "📞 <b>WALLET NUMBER  :</b> <code>{num}</code>\n"
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-            "💰 <b>NET PAYABLE    :</b> <code>{taka} ৳</code> <i>(Fee -5৳)</i>\n"
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-            "⏳ <i>Admin will verify and send payment shortly!</i>"
+            "<b>┌─────────────────────┐</b>\n"
+            "<b>│ <tg-emoji emoji-id='5368324170671202286'>🎉</tg-emoji> SALE REQUEST SUBMITTED! │</b>\n"
+            "<b>└─────────────────────┘</b>\n\n"
+            "<tg-emoji emoji-id='5368324170671202286'>🆔</tg-emoji> <b>TRANSACTION ID :</b> <code>#{tx_id}</code>\n"
+            "<tg-emoji emoji-id='5368324170671202286'>🪙</tg-emoji> <b>COIN TYPE      :</b> <b>{coin}</b>\n"
+            "<tg-emoji emoji-id='5368324170671202286'>📦</tg-emoji> <b>COIN AMOUNT    :</b> <b>{amt:,}</b>\n"
+            "<tg-emoji emoji-id='5368324170671202286'>📱</tg-emoji> <b>PAYMENT METHOD :</b> <b>{method}</b>\n"
+            "<tg-emoji emoji-id='5368324170671202286'>📞</tg-emoji> <b>WALLET NUMBER  :</b> <code>{num}</code>\n"
+            "━━━━━━━━━━━━━━━━━━━━━\n"
+            "<tg-emoji emoji-id='5368324170671202286'>💰</tg-emoji> <b>NET PAYABLE    :</b> <code>{taka} ৳</code> <i>(Fee -5৳)</i>\n"
+            "━━━━━━━━━━━━━━━━━━━━━\n\n"
+            "<tg-emoji emoji-id='5368324170671202286'>⏳</tg-emoji> <i>Admin will verify and send payment shortly!</i>"
         ),
-        "history_title": "📜 <b>YOUR TRANSACTION HISTORY:</b>\n\n",
+        "history_title": "<tg-emoji emoji-id='5368324170671202286'>📜</tg-emoji> <b>YOUR TRANSACTION HISTORY:</b>\n\n",
         "no_history": "<i>No transaction history found.</i>",
-        "leaderboard_title": "🏆 <b>PUBLIC LEADERBOARD (Top Sellers):</b>\n\n",
+        "leaderboard_title": "<tg-emoji emoji-id='5368324170671202286'>🏆</tg-emoji> <b>PUBLIC LEADERBOARD (Top Sellers):</b>\n\n",
         "no_leaderboard": "<i>No successful transactions yet.</i>",
         "lang_selected": "✅ <b>Language set to English!</b>",
-        "lang_choose": "🌐 <b>Select your preferred language:</b>",
+        "lang_choose": "<tg-emoji emoji-id='5368324170671202286'>🌐</tg-emoji> <b>Select your preferred language:</b>",
         "btn_sell": "🛒 Sell Coins",
         "btn_rates": "📊 Live Rates",
         "btn_history": "📜 My History",
@@ -72,40 +79,47 @@ MESSAGES = {
         "btn_support": "👨‍💻 Support"
     },
     "bn": {
-        "welcome": "<b>👋 Sell Point IT-এ আপনাকে স্বাগতম!</b>\n\n<i>লেনদেন শুরু করতে নিচের মেনু কিবোর্ড বাটনগুলো ব্যবহার করুন:</i>",
-        "rates_title": "📊 <b>লাইভ মার্কেট রেট (প্রতি ১০০০ কয়েন):</b>\n\n",
+        "welcome": (
+            "<b><tg-emoji emoji-id='5368324170671202286'>👋</tg-emoji> Sell Point IT-এ আপনাকে স্বাগতম!</b>\n\n"
+            "<i>লেনদেন শুরু করতে নিচের মেনু কিবোর্ড বাটনগুলো ব্যবহার করুন:</i>"
+        ),
+        "rates_title": "<tg-emoji emoji-id='5368324170671202286'>📊</tg-emoji> <b>লাইভ মার্কেট রেট (প্রতি ১০০০ কয়েন):</b>\n\n",
         "active": "🟢 সক্রিয়",
         "inactive": "🔴 নিষ্ক্রিয়",
-        "sell_title": "🛒 <b>কোন কয়েনটি বিক্রি করতে চান বেছে নিন:</b>\n<i>(সর্বনিম্ন ১০,০০০ কয়েন)</i>",
-        "enter_coupon": "🔑 <b>ধাপ ১: আপনার Coupon Code-টি নিচে লিখুন:</b>",
-        "enter_username": "📥 <b>এডমিনের কয়েন রিসিভিং আইডি:</b> <code>{acc}</code>\n\n<i>প্রথমে অ্যাপ থেকে উপরের ইউজারনেমে কয়েন সেন্ড করুন।</i>\n♻️ <b>যে আইডি থেকে কয়েন পাঠিয়েছেন সেই Sender Username লিখুন:</b>",
-        "enter_amount": "💰 <b>কয়েনের পরিমাণ নির্বাচন করুন বা টাইপ করুন:</b>\n<i>(সর্বনিম্ন ১০,০০০)</i>",
-        "enter_custom_amount": "✏️ <b>কয়েনের পরিমাণ লিখুন (যেমন: 15000):</b>",
+        "sell_title": "<tg-emoji emoji-id='5368324170671202286'>🛒</tg-emoji> <b>কোন কয়েনটি বিক্রি করতে চান বেছে নিন:</b>\n<i>(সর্বনিম্ন ১০,০০০ কয়েন)</i>",
+        "enter_coupon": "<tg-emoji emoji-id='5368324170671202286'>🔑</tg-emoji> <b>ধাপ ১: আপনার Coupon Code-টি নিচে লিখুন:</b>",
+        "enter_username": (
+            "<tg-emoji emoji-id='5368324170671202286'>📥</tg-emoji> <b>এডমিনের কয়েন রিসিভিং আইডি:</b> <code>{acc}</code>\n\n"
+            "<i>প্রথমে অ্যাপ থেকে উপরের ইউজারনেমে কয়েন সেন্ড করুন।</i>\n"
+            "<tg-emoji emoji-id='5368324170671202286'>♻️</tg-emoji> <b>যে আইডি থেকে কয়েন পাঠিয়েছেন সেই Sender Username লিখুন:</b>"
+        ),
+        "enter_amount": "<tg-emoji emoji-id='5368324170671202286'>💰</tg-emoji> <b>কয়েনের পরিমাণ নির্বাচন করুন বা টাইপ করুন:</b>\n<i>(সর্বনিম্ন ১০,০০০)</i>",
+        "enter_custom_amount": "<tg-emoji emoji-id='5368324170671202286'>✏️</tg-emoji> <b>কয়েনের পরিমাণ লিখুন (যেমন: 15000):</b>",
         "min_amount_err": "⚠️ <i>সর্বনিম্ন ১০,০০০ কয়েন হতে হবে।</i>",
         "num_err": "⚠️ <i>অনুগ্রহ করে সঠিক সংখ্যা লিখুন:</i>",
-        "enter_method": "📱 <b>পেমেন্ট মেথড নির্বাচন করুন:</b>",
-        "enter_number": "📞 <b>পেমেন্ট নম্বর নির্বাচন করুন বা নতুন লিখুন:</b>",
-        "enter_custom_number": "✏️ <b>আপনার অ্যাকাউন্টের বিকাশ/নগদ নম্বর লিখুন:</b>",
+        "enter_method": "<tg-emoji emoji-id='5368324170671202286'>📱</tg-emoji> <b>পেমেন্ট মেথড নির্বাচন করুন:</b>",
+        "enter_number": "<tg-emoji emoji-id='5368324170671202286'>📞</tg-emoji> <b>পেমেন্ট নম্বর নির্বাচন করুন বা নতুন লিখুন:</b>",
+        "enter_custom_number": "<tg-emoji emoji-id='5368324170671202286'>✏️</tg-emoji> <b>আপনার অ্যাকাউন্টের বিকাশ/নগদ নম্বর লিখুন:</b>",
         "tx_success": (
-            "<b>┌──────────────────────────────┐</b>\n"
-            "<b>│  🎉 রিকোয়েস্ট সফলভাবে জমা হয়েছে! │</b>\n"
-            "<b>└──────────────────────────────┘</b>\n\n"
-            "🆔 <b>লেনদেন আইডি   :</b> <code>#{tx_id}</code>\n"
-            "🪙 <b>কয়েন টাইপ     :</b> <b>{coin}</b>\n"
-            "📦 <b>কয়েনের পরিমাণ  :</b> <b>{amt:,}</b>\n"
-            "📱 <b>পেমেন্ট মেথড   :</b> <b>{method}</b>\n"
-            "📞 <b>ওয়ালেট নম্বর   :</b> <code>{num}</code>\n"
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-            "💰 <b>মোট প্রাপ্ত টাকা :</b> <code>{taka} ৳</code> <i>(চার্জ -৫৳)</i>\n"
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-            "⏳ <i>এডমিন দ্রুত কয়েন যাচাই করে পেমেন্ট সম্পন্ন করবে!</i>"
+            "<b>┌─────────────────────┐</b>\n"
+            "<b>│ <tg-emoji emoji-id='5368324170671202286'>🎉</tg-emoji> রিকোয়েস্ট সফলভাবে জমা হয়েছে! │</b>\n"
+            "<b>└─────────────────────┘</b>\n\n"
+            "<tg-emoji emoji-id='5368324170671202286'>🆔</tg-emoji> <b>লেনদেন আইডি   :</b> <code>#{tx_id}</code>\n"
+            "<tg-emoji emoji-id='5368324170671202286'>🪙</tg-emoji> <b>কয়েন টাইপ     :</b> <b>{coin}</b>\n"
+            "<tg-emoji emoji-id='5368324170671202286'>📦</tg-emoji> <b>কয়েনের পরিমাণ  :</b> <b>{amt:,}</b>\n"
+            "<tg-emoji emoji-id='5368324170671202286'>📱</tg-emoji> <b>পেমেন্ট মেথড   :</b> <b>{method}</b>\n"
+            "<tg-emoji emoji-id='5368324170671202286'>📞</tg-emoji> <b>ওয়ালেট নম্বর   :</b> <code>{num}</code>\n"
+            "━━━━━━━━━━━━━━━━━━━━━\n"
+            "<tg-emoji emoji-id='5368324170671202286'>💰</tg-emoji> <b>মোট প্রাপ্ত টাকা :</b> <code>{taka} ৳</code> <i>(চার্জ -৫৳)</i>\n"
+            "━━━━━━━━━━━━━━━━━━━━━\n\n"
+            "<tg-emoji emoji-id='5368324170671202286'>⏳</tg-emoji> <i>এডমিন দ্রুত কয়েন যাচাই করে পেমেন্ট সম্পন্ন করবে!</i>"
         ),
-        "history_title": "📜 <b>আপনার লেনদেনের ইতিহাস:</b>\n\n",
+        "history_title": "<tg-emoji emoji-id='5368324170671202286'>📜</tg-emoji> <b>আপনার লেনদেনের ইতিহাস:</b>\n\n",
         "no_history": "<i>আপনার কোনো লেনদেনের ইতিহাস পাওয়া যায়নি।</i>",
-        "leaderboard_title": "🏆 <b>পাবলিক লিডারবোর্ড (সেরা বিক্রেতা):</b>\n\n",
+        "leaderboard_title": "<tg-emoji emoji-id='5368324170671202286'>🏆</tg-emoji> <b>পাবলিক লিডারবোর্ড (সেরা বিক্রেতা):</b>\n\n",
         "no_leaderboard": "<i>এখনো কোনো সফল লেনদেন হয়নি।</i>",
         "lang_selected": "✅ <b>ভাষা সফলভাবে বাংলা নির্বাচন করা হয়েছে!</b>",
-        "lang_choose": "🌐 <b>আপনার পছন্দসই ভাষা নির্বাচন করুন:</b>",
+        "lang_choose": "<tg-emoji emoji-id='5368324170671202286'>🌐</tg-emoji> <b>আপনার পছন্দসই ভাষা নির্বাচন করুন:</b>",
         "btn_sell": "🛒 Sell Coins",
         "btn_rates": "📊 Live Rates",
         "btn_history": "📜 My History",
@@ -143,15 +157,15 @@ def init_db():
     ''')
     
     default_coins = [
-        ('niva', 'Niva Coin', 5.0, 1, 'sell_point_it'),
-        ('NewTop', 'NewTop Coin', 3.0, 1, 'AdminNewTopID'),
-        ('topfollows', 'Topfollows Coin', 3.0, 1, 'N/A'),
-        ('ns', 'NS Coin', 8.0, 1, 'himelorkar019'),
-        ('nexa', 'Nexa Coin', 4.0, 1, 'AdminNexaID'),
-        ('coinsta', 'Coinsta Coin', 4.5, 1, 'AdminCoinstaID'),
-        ('coinova', 'Coinova Coin', 6.0, 1, 'AdminCoinovaID'),
+        ('niva', 'Niva Coin', 4.0, 1, 'sell_point_it'),
+        ('NewTop', 'NewTop Coin', 21.0, 1, 'AdminNewTopID'),
+        ('topfollows', 'Topfollows Coin', 2.0, 1, 'N/A'),
+        ('ns', 'NS Coin', 9.0, 1, 'himelorkar019'),
+        ('nexa', 'Nexa Coin', 9.0, 1, 'AdminNexaID'),
+        ('coinsta', 'Coinsta Coin', 19.5, 1, 'AdminCoinstaID'),
+        ('coinova', 'Coinova Coin', 14.0, 1, 'AdminCoinovaID'),
         ('oldtop', 'Oldtop Coin', 3.5, 1, 'AdminOldtopID'),
-        ('manually_pro', 'Manually Pro Coin', 7.0, 1, 'AdminManuallyProID')
+        ('manually_pro', 'Manually Pro Coin', 6.0, 1, 'AdminManuallyProID')
     ]
     
     for c in default_coins:
@@ -398,7 +412,6 @@ async def handle_callbacks(update: Update, context: ContextTypes.DEFAULT_TYPE):
         new_txt = MESSAGES[new_lang]
         await query.edit_message_text(new_txt["lang_selected"], parse_mode="HTML")
 
-    # --- সেল কয়েন সিলেক্ট ---
     elif data.startswith("sell_"):
         key = data.split("_")[1]
         coins = get_coins()
@@ -419,7 +432,6 @@ async def handle_callbacks(update: Update, context: ContextTypes.DEFAULT_TYPE):
             sent_msg = await query.edit_message_text(msg, parse_mode="HTML")
             track_msg(context, sent_msg.message_id)
 
-    # --- Amount Selection ---
     elif data.startswith("amt_"):
         val = data.split("_")[1]
         if val == "custom":
@@ -433,7 +445,6 @@ async def handle_callbacks(update: Update, context: ContextTypes.DEFAULT_TYPE):
             sent_msg = await query.edit_message_text(txt["enter_method"], reply_markup=get_method_keyboard(), parse_mode="HTML")
             track_msg(context, sent_msg.message_id)
 
-    # --- Method Selection ---
     elif data.startswith("method_"):
         m_name = data.split("_")[1]
         context.user_data["method"] = m_name
@@ -445,7 +456,6 @@ async def handle_callbacks(update: Update, context: ContextTypes.DEFAULT_TYPE):
         sent_msg = await query.edit_message_text(txt["enter_number"], reply_markup=get_number_keyboard(s_method, s_num), parse_mode="HTML")
         track_msg(context, sent_msg.message_id)
 
-    # --- Number Selection ---
     elif data == "num_use_saved":
         s_method = u_data["saved_method"]
         s_num = u_data["saved_number"]
@@ -456,7 +466,6 @@ async def handle_callbacks(update: Update, context: ContextTypes.DEFAULT_TYPE):
         sent_msg = await query.edit_message_text(txt["enter_custom_number"], parse_mode="HTML")
         track_msg(context, sent_msg.message_id)
 
-    # --- Admin Actions ---
     elif data.startswith("admin_accept_") or data.startswith("admin_reject_"):
         if user_id != ADMIN_TELEGRAM_ID: return
         parts = data.split("_")
@@ -478,7 +487,6 @@ async def handle_callbacks(update: Update, context: ContextTypes.DEFAULT_TYPE):
             context.user_data["admin_step"] = "AWAITING_PROOF"
             await query.edit_message_text(query.message.text + "\n\n📸 <b>কাস্টমারকে পেমেন্ট করে স্ক্রিনশটটি এই চ্যাটে সেন্ড করুন:</b>", parse_mode="HTML")
 
-    # --- Admin Control Management ---
     elif data.startswith("adm_manage_"):
         if user_id != ADMIN_TELEGRAM_ID: return
         key = data.split("_")[2]
@@ -545,7 +553,7 @@ async def handle_inputs(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # --- Reply Keyboard Button Press ---
     if text_input in ["🛒 Sell Coins", "🛒 কয়েন বিক্রি"]:
-        context.user_data["temp_msg_ids"] = [] # ট্র্যাকিং রিসেট
+        context.user_data["temp_msg_ids"] = []
         if user_msg_id: track_msg(context, user_msg_id)
         
         coins = get_coins()
@@ -612,7 +620,7 @@ async def handle_inputs(update: Update, context: ContextTypes.DEFAULT_TYPE):
         msg = (
             f"✅ <b>Your coin sale request was accepted and payment sent to your wallet!</b>\n\n"
             f"📋 <b>Transaction Details:</b>\n"
-            f"━━━━━━━━━━━━━━━━━━━\n"
+            f"━━━━━━━━━━━━━━━\n"
             f"🆔 <b>Transaction ID:</b> <code>#{tx_id}</code>\n"
             f"🪙 <b>Coin Type:</b> {tx[1]}\n"
             f"{info_label} <code>{tx[7]}</code>\n"
@@ -620,7 +628,7 @@ async def handle_inputs(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"📱 <b>Payment Wallet:</b> {tx[3]}\n"
             f"Number: <code>{tx[4]}</code>\n"
             f"💰 <b>Paid Amount:</b> <code>{tx[5]} ৳</code>\n"
-            f"━━━━━━━━━━━━━━━━━━━\n"
+            f"━━━━━━━━━━━━━━━\n"
             f"Payment proof screenshot is attached below."
         )
         
@@ -715,7 +723,6 @@ async def finalize_transaction(update: Update, context: ContextTypes.DEFAULT_TYP
     user_obj = update.effective_user
     tx_id = add_transaction(user_id, user_obj.first_name, c["label"], amt, method, num, net_taka, coin_info)
 
-    # ১. ইউজারকে ফাইনাল সাকসেস রসিদ পাঠানো (নিচে কোনো ইনলাইন বাটন বা মেনু থাকবে না)
     user_msg_text = txt["tx_success"].format(
         tx_id=tx_id, coin=c['label'], amt=amt, method=method, num=num, taka=net_taka
     )
@@ -725,11 +732,9 @@ async def finalize_transaction(update: Update, context: ContextTypes.DEFAULT_TYP
     else:
         await update.message.reply_text(user_msg_text, parse_mode="HTML")
 
-    # ২. ৩ সেকেন্ডের মধ্যে চ্যাটের আগের সমস্ত মেসেজ ডিলিট করা
     asyncio.create_task(delete_messages_after_delay(context, user_id, temp_ids, delay=3))
     context.user_data["temp_msg_ids"] = []
 
-    # ৩. এডমিনকে নোটিফিকেশন পাঠানো
     info_type = "🎟 <b>Coupon Code:</b>" if key == "topfollows" else "👤 <b>Sender Username:</b>"
     admin_msg = (
         f"🚨 <b>New Coin Sale Request!</b>\n\n"
@@ -775,14 +780,13 @@ async def post_init(application: Application):
 def main():
     app = Application.builder().token(BOT_TOKEN).post_init(post_init).build()
 
-    # Handlers
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("admin", admin_panel))
     
     app.add_handler(CallbackQueryHandler(handle_callbacks))
     app.add_handler(MessageHandler(filters.TEXT | filters.PHOTO, handle_inputs))
 
-    print("Bot is running purely with Column Reply Keyboard Layout...")
+    print("Bot is running with Telegram Custom Premium Emoji Support...")
     app.run_polling()
 
 if __name__ == "__main__":
