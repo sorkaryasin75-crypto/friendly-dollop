@@ -3,10 +3,9 @@ import asyncio
 import logging
 import sqlite3
 from telegram import (
+    BotCommand,
     InlineKeyboardButton,
     InlineKeyboardMarkup,
-    KeyboardButton,
-    ReplyKeyboardMarkup,
     Update,
 )
 from telegram.ext import (
@@ -30,7 +29,16 @@ logging.basicConfig(
 # --- ২. বহুভাষিক টেক্সট অভিধান (Default English) ---
 MESSAGES = {
     "en": {
-        "welcome": "<b>👋 Welcome to Sell Point IT!</b>\n\n<i>Please select an option from the menu below:</i>",
+        "welcome": (
+            "<b>👋 Welcome to Sell Point IT!</b>\n\n"
+            "<i>To interact with the bot, please click the <b>Menu</b> button beside your typing box or send commands like:</i>\n"
+            "• /sell - 🛒 Sell Coins\n"
+            "• /rates - 📊 Live Market Rates\n"
+            "• /history - 📜 Transaction History\n"
+            "• /leaderboard - 🏆 Top Sellers\n"
+            "• /language - 🌐 Change Language\n"
+            "• /support - 👨‍💻 Support Center"
+        ),
         "rates_title": "📊 <b>LIVE MARKET RATES (Per 1000 Coins):</b>\n\n",
         "active": "🟢 Active",
         "inactive": "🔴 Inactive",
@@ -63,17 +71,19 @@ MESSAGES = {
         "leaderboard_title": "🏆 <b>PUBLIC LEADERBOARD (Top Sellers):</b>\n\n",
         "no_leaderboard": "<i>No successful transactions yet.</i>",
         "lang_selected": "✅ <b>Language set to English!</b>",
-        "lang_choose": "🌐 <b>Select your preferred language:</b>",
-        "btn_sell": "🛒 Sell Coins",
-        "btn_rates": "📊 Live Rates",
-        "btn_history": "📜 My History",
-        "btn_leaderboard": "🏆 Leaderboard",
-        "btn_lang": "🌐 Language / ভাষা",
-        "btn_support": "👨‍💻 Support",
-        "btn_channel": "📢 Channel"
+        "lang_choose": "🌐 <b>Select your preferred language:</b>"
     },
     "bn": {
-        "welcome": "<b>👋 Sell Point IT-এ আপনাকে স্বাগতম!</b>\n\n<i>নিচের মেনু থেকে আপনার পছন্দমতো সেবা বেছে নিন:</i>",
+        "welcome": (
+            "<b>👋 Sell Point IT-এ আপনাকে স্বাগতম!</b>\n\n"
+            "<i>বট ব্যবহার করতে চ্যাট বক্সের পাশে থাকা <b>Menu</b> বাটনে ক্লিক করুন অথবা টাইপ করুন:</i>\n"
+            "• /sell - 🛒 কয়েন বিক্রি করুন\n"
+            "• /rates - 📊 লাইভ মার্কেট রেট\n"
+            "• /history - 📜 লেনদেনের ইতিহাস\n"
+            "• /leaderboard - 🏆 সেরা বিক্রেতা\n"
+            "• /language - 🌐 ভাষা পরিবর্তন\n"
+            "• /support - 👨‍💻 কাস্টমার সাপোর্ট"
+        ),
         "rates_title": "📊 <b>লাইভ মার্কেট রেট (প্রতি ১০০০ কয়েন):</b>\n\n",
         "active": "🟢 সক্রিয়",
         "inactive": "🔴 নিষ্ক্রিয়",
@@ -106,14 +116,7 @@ MESSAGES = {
         "leaderboard_title": "🏆 <b>পাবলিক লিডারবোর্ড (সেরা বিক্রেতা):</b>\n\n",
         "no_leaderboard": "<i>এখনো কোনো সফল লেনদেন হয়নি।</i>",
         "lang_selected": "✅ <b>ভাষা সফলভাবে বাংলা নির্বাচন করা হয়েছে!</b>",
-        "lang_choose": "🌐 <b>আপনার পছন্দসই ভাষা নির্বাচন করুন:</b>",
-        "btn_sell": "🛒 Sell Coins",
-        "btn_rates": "📊 Live Rates",
-        "btn_history": "📜 My History",
-        "btn_leaderboard": "🏆 Leaderboard",
-        "btn_lang": "🌐 Language / ভাষা",
-        "btn_support": "👨‍💻 Support",
-        "btn_channel": "📢 Channel"
+        "lang_choose": "🌐 <b>আপনার পছন্দসই ভাষা নির্বাচন করুন:</b>"
     }
 }
 
@@ -302,7 +305,6 @@ def get_leaderboard():
 
 # --- ৫. চ্যাট পরিষ্কারক ব্যাকগ্রাউন্ড ফাংশন ---
 def track_msg(context: ContextTypes.DEFAULT_TYPE, msg_id: int):
-    """মেসেজ আইডি সেফলি ট্র্যাকিং লিস্টে জমা রাখার হেল্পার ফাংশন"""
     if "temp_msg_ids" not in context.user_data or not isinstance(context.user_data["temp_msg_ids"], list):
         context.user_data["temp_msg_ids"] = []
     if msg_id and msg_id not in context.user_data["temp_msg_ids"]:
@@ -316,29 +318,7 @@ async def delete_messages_after_delay(context: ContextTypes.DEFAULT_TYPE, chat_i
         except Exception:
             pass
 
-# --- ৬. Inline Keyboards Layout ---
-def get_main_inline_keyboard(lang="en"):
-    txt = MESSAGES[lang]
-    keyboard = [
-        [InlineKeyboardButton(txt["btn_sell"], callback_data="menu_sell")],
-        [InlineKeyboardButton(txt["btn_rates"], callback_data="menu_rates")],
-        [InlineKeyboardButton(txt["btn_history"], callback_data="menu_history")],
-        [InlineKeyboardButton(txt["btn_leaderboard"], callback_data="menu_leaderboard")],
-        [InlineKeyboardButton(txt["btn_lang"], callback_data="menu_lang")],
-        [InlineKeyboardButton(txt["btn_support"], url="https://t.me/educationpointbd24")],
-        [InlineKeyboardButton(txt["btn_channel"], url="https://t.me/EducationPointBD")]
-    ]
-    return InlineKeyboardMarkup(keyboard)
-
-def get_main_reply_keyboard(lang="en"):
-    txt = MESSAGES[lang]
-    keyboard = [
-        [KeyboardButton(txt["btn_sell"]), KeyboardButton(txt["btn_rates"])],
-        [KeyboardButton(txt["btn_history"]), KeyboardButton(txt["btn_leaderboard"])],
-        [KeyboardButton(txt["btn_lang"]), KeyboardButton(txt["btn_support"])]
-    ]
-    return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-
+# --- ৬. প্রসেসিং সময়ের জন্য Inline Keyboards ---
 def get_language_keyboard():
     return InlineKeyboardMarkup([
         [InlineKeyboardButton("🇺🇸 English", callback_data="set_lang_en")],
@@ -367,7 +347,7 @@ def get_number_keyboard(saved_method, saved_number):
     keyboard.append([InlineKeyboardButton("✏️ Enter New Number (নতুন নাম্বার লিখুন)", callback_data="num_enter_new")])
     return InlineKeyboardMarkup(keyboard)
 
-# --- ৭. বট স্টার্ট হ্যান্ডলার ---
+# --- ৭. বট কমান্ড হ্যান্ডলারসমূহ ---
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     add_user(user_id)
@@ -375,15 +355,89 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = u_data["lang"]
     txt = MESSAGES[lang]
     
-    inline_markup = get_main_inline_keyboard(lang)
-    reply_markup = get_main_reply_keyboard(lang)
-    
-    text = txt["welcome"]
     if update.message:
-        await update.message.reply_text(text, reply_markup=inline_markup, parse_mode="HTML")
-        await update.message.reply_text("⬇️ Quick Bottom Menu Loaded:", reply_markup=reply_markup)
+        await update.message.reply_text(txt["welcome"], parse_mode="HTML")
+
+async def sell_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = update.effective_user.id
+    add_user(user_id)
+    u_data = get_user_data(user_id)
+    lang = u_data["lang"]
+    txt = MESSAGES[lang]
+    
+    context.user_data["temp_msg_ids"] = []
+    if update.message:
+        track_msg(context, update.message.message_id)
+        
+    coins = get_coins()
+    keyboard = []
+    for k, c in coins.items():
+        if c["active"]:
+            keyboard.append([InlineKeyboardButton(f"Sell {c['label']} ({c['price']}৳/1K)", callback_data=f"sell_{k}")])
+    
+    msg = await update.message.reply_text(txt["sell_title"], reply_markup=InlineKeyboardMarkup(keyboard), parse_mode="HTML")
+    track_msg(context, msg.message_id)
+
+async def rates_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = update.effective_user.id
+    add_user(user_id)
+    u_data = get_user_data(user_id)
+    lang = u_data["lang"]
+    txt = MESSAGES[lang]
+    
+    coins = get_coins()
+    text = txt["rates_title"]
+    for k, c in coins.items():
+        st = txt["active"] if c["active"] else txt["inactive"]
+        text += f"• <b>{c['label']}</b>: {c['price']} ৳ ({st})\n"
+    await update.message.reply_text(text, parse_mode="HTML")
+
+async def history_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = update.effective_user.id
+    add_user(user_id)
+    u_data = get_user_data(user_id)
+    lang = u_data["lang"]
+    txt = MESSAGES[lang]
+    
+    history = get_user_history(user_id)
+    text = txt["history_title"]
+    if not history:
+        text += txt["no_history"]
     else:
-        await update.callback_query.edit_message_text(text, reply_markup=inline_markup, parse_mode="HTML")
+        for row in history:
+            st_icon = "⏳" if row[4] == "Pending" else ("✅" if row[4] == "Accepted" else "❌")
+            info_text = f"🔑 Coupon: <code>{row[5]}</code>" if "topfollows" in str(row[1]).lower() else f"👤 Sender ID: <code>{row[5]}</code>"
+            text += f"🆔 <code>#{row[0]}</code> | <b>{row[1]}</b>\n{info_text}\n📦 Amount: {row[2]:,} | 💰 {row[3]} ৳\nStatus: {st_icon} <b>{row[4]}</b>\n----------------------\n"
+    await update.message.reply_text(text, parse_mode="HTML")
+
+async def leaderboard_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = update.effective_user.id
+    add_user(user_id)
+    u_data = get_user_data(user_id)
+    lang = u_data["lang"]
+    txt = MESSAGES[lang]
+    
+    lb = get_leaderboard()
+    text = txt["leaderboard_title"]
+    if not lb:
+        text += txt["no_leaderboard"]
+    else:
+        for idx, row in enumerate(lb, start=1):
+            text += f"{idx}. <b>{row[0]}</b> — {row[1]:,} Coins ({row[2]} Sales)\n"
+    await update.message.reply_text(text, parse_mode="HTML")
+
+async def language_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = update.effective_user.id
+    add_user(user_id)
+    u_data = get_user_data(user_id)
+    lang = u_data["lang"]
+    txt = MESSAGES[lang]
+    
+    await update.message.reply_text(txt["lang_choose"], reply_markup=get_language_keyboard(), parse_mode="HTML")
+
+async def support_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    text = "👨‍💻 <b>Support Center:</b>\nContact admin: @educationpointbd24\nOfficial Channel: @EducationPointBD"
+    await update.message.reply_text(text, parse_mode="HTML")
 
 # --- ৮. এডমিন প্যানেল UI ---
 def get_admin_keyboard():
@@ -414,67 +468,21 @@ async def handle_callbacks(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = u_data["lang"]
     txt = MESSAGES[lang]
 
-    if data == "main_menu":
-        await start(update, context)
-
-    elif data == "menu_sell":
-        coins = get_coins()
-        keyboard = []
-        for k, c in coins.items():
-            if c["active"]:
-                keyboard.append([InlineKeyboardButton(f"Sell {c['label']} ({c['price']}৳/1K)", callback_data=f"sell_{k}")])
-        keyboard.append([InlineKeyboardButton("🏠 Main Menu", callback_data="main_menu")])
-        await query.edit_message_text(txt["sell_title"], reply_markup=InlineKeyboardMarkup(keyboard), parse_mode="HTML")
-
-    elif data == "menu_rates":
-        coins = get_coins()
-        text = txt["rates_title"]
-        for k, c in coins.items():
-            st = txt["active"] if c["active"] else txt["inactive"]
-            text += f"• <b>{c['label']}</b>: {c['price']} ৳ ({st})\n"
-        await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🏠 Main Menu", callback_data="main_menu")]]), parse_mode="HTML")
-
-    elif data == "menu_history":
-        history = get_user_history(user_id)
-        text = txt["history_title"]
-        if not history:
-            text += txt["no_history"]
-        else:
-            for row in history:
-                st_icon = "⏳" if row[4] == "Pending" else ("✅" if row[4] == "Accepted" else "❌")
-                info_text = f"🔑 Coupon: <code>{row[5]}</code>" if "topfollows" in str(row[1]).lower() else f"👤 Sender ID: <code>{row[5]}</code>"
-                text += f"🆔 <code>#{row[0]}</code> | <b>{row[1]}</b>\n{info_text}\n📦 Amount: {row[2]:,} | 💰 {row[3]} ৳\nStatus: {st_icon} <b>{row[4]}</b>\n----------------------\n"
-        await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🏠 Main Menu", callback_data="main_menu")]]), parse_mode="HTML")
-
-    elif data == "menu_leaderboard":
-        lb = get_leaderboard()
-        text = txt["leaderboard_title"]
-        if not lb:
-            text += txt["no_leaderboard"]
-        else:
-            for idx, row in enumerate(lb, start=1):
-                text += f"{idx}. <b>{row[0]}</b> — {row[1]:,} Coins ({row[2]} Sales)\n"
-        await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🏠 Main Menu", callback_data="main_menu")]]), parse_mode="HTML")
-
-    elif data == "menu_lang":
-        await query.edit_message_text(txt["lang_choose"], reply_markup=get_language_keyboard(), parse_mode="HTML")
-
-    elif data.startswith("set_lang_"):
+    if data.startswith("set_lang_"):
         new_lang = data.split("_")[2]
         set_user_lang(user_id, new_lang)
         new_txt = MESSAGES[new_lang]
-        await query.edit_message_text(new_txt["lang_selected"], reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🏠 Main Menu", callback_data="main_menu")]]), parse_mode="HTML")
+        await query.edit_message_text(new_txt["lang_selected"], parse_mode="HTML")
 
-    # --- সেল কয়েন প্রসেস শুরু (ট্র্যাকিং সেফটি সহ) ---
+    # --- সেল কয়েন প্রসেস ---
     elif data.startswith("sell_"):
         key = data.split("_")[1]
         coins = get_coins()
         c = coins.get(key)
         context.user_data["selected_coin"] = key
-        context.user_data["temp_msg_ids"] = [] # নতুন করে ক্লিন করার লিস্ট রেডি
         
         if query.message:
-            track_msg(context, query.message.message_id) # আগের অপশন মেসেজ ট্রাক করা
+            track_msg(context, query.message.message_id)
         
         if key == "topfollows":
             context.user_data["step"] = "AWAITING_COUPON"
@@ -611,58 +619,6 @@ async def handle_inputs(update: Update, context: ContextTypes.DEFAULT_TYPE):
     admin_step = context.user_data.get("admin_step")
     step = context.user_data.get("step")
 
-    # --- Reply Menu Buttons Handling ---
-    if text_input in ["🛒 Sell Coins", "🛒 কয়েন বিক্রি"]:
-        context.user_data["temp_msg_ids"] = [] # ট্র্যাকিং রিসেট
-        if user_msg_id: track_msg(context, user_msg_id)
-        
-        coins = get_coins()
-        keyboard = []
-        for k, c in coins.items():
-            if c["active"]:
-                keyboard.append([InlineKeyboardButton(f"Sell {c['label']} ({c['price']}৳/1K)", callback_data=f"sell_{k}")])
-        
-        bot_prompt = await update.message.reply_text(txt["sell_title"], reply_markup=InlineKeyboardMarkup(keyboard), parse_mode="HTML")
-        track_msg(context, bot_prompt.message_id)
-        return
-
-    elif text_input in ["📊 Live Rates", "📊 লাইভ রেট"]:
-        coins = get_coins()
-        text = txt["rates_title"]
-        for k, c in coins.items():
-            st = txt["active"] if c["active"] else txt["inactive"]
-            text += f"• <b>{c['label']}</b>: {c['price']} ৳ ({st})\n"
-        await update.message.reply_text(text, parse_mode="HTML")
-        return
-
-    elif text_input in ["📜 My History", "📜 মাই হিস্ট্রি"]:
-        history = get_user_history(user_id)
-        text = txt["history_title"]
-        if not history:
-            text += txt["no_history"]
-        else:
-            for row in history:
-                st_icon = "⏳" if row[4] == "Pending" else ("✅" if row[4] == "Accepted" else "❌")
-                info_text = f"🔑 Coupon: <code>{row[5]}</code>" if "topfollows" in str(row[1]).lower() else f"👤 Sender ID: <code>{row[5]}</code>"
-                text += f"🆔 <code>#{row[0]}</code> | <b>{row[1]}</b>\n{info_text}\n📦 Amount: {row[2]:,} | 💰 {row[3]} ৳\nStatus: {st_icon} <b>{row[4]}</b>\n----------------------\n"
-        await update.message.reply_text(text, parse_mode="HTML")
-        return
-
-    elif text_input in ["🏆 Leaderboard", "🏆 লিডারবোর্ড"]:
-        lb = get_leaderboard()
-        text = txt["leaderboard_title"]
-        if not lb:
-            text += txt["no_leaderboard"]
-        else:
-            for idx, row in enumerate(lb, start=1):
-                text += f"{idx}. <b>{row[0]}</b> — {row[1]:,} Coins ({row[2]} Sales)\n"
-        await update.message.reply_text(text, parse_mode="HTML")
-        return
-
-    elif text_input in ["🌐 Language / ভাষা", "🌐 Language"]:
-        await update.message.reply_text(txt["lang_choose"], reply_markup=get_language_keyboard(), parse_mode="HTML")
-        return
-
     # --- Admin Proof Verification ---
     if user_id == ADMIN_TELEGRAM_ID and admin_step == "AWAITING_PROOF" and update.message.photo:
         tx_id = context.user_data.get("pending_tx_id")
@@ -761,10 +717,10 @@ async def handle_inputs(update: Update, context: ContextTypes.DEFAULT_TYPE):
         save_user_wallet(user_id, method, num)
         await finalize_transaction(update, context, method, num, user_id, lang)
 
-# --- ১১. লেনদেন সাবমিট এবং ফাইনাল মেসেজ প্রসেসর ---
+# --- ১১. লেনদেন সাবমিট এবং ফাইনাল মেসেজ প্রসেসর (কোনো মেনু বাটন ছাড়াই) ---
 async def finalize_transaction(update: Update, context: ContextTypes.DEFAULT_TYPE, method: str, num: str, user_id: int, lang: str):
     txt = MESSAGES[lang]
-    temp_ids = context.user_data.get("temp_msg_ids", []).copy() # কপি তৈরি করা
+    temp_ids = context.user_data.get("temp_msg_ids", []).copy()
     
     coins = get_coins()
     key = context.user_data["selected_coin"]
@@ -778,19 +734,19 @@ async def finalize_transaction(update: Update, context: ContextTypes.DEFAULT_TYP
     user_obj = update.effective_user
     tx_id = add_transaction(user_id, user_obj.first_name, c["label"], amt, method, num, net_taka, coin_info)
 
-    # ১. ইউজারকে ফাইনাল সাকসেস রসিদ পাঠানো (যা চ্যাটে স্থায়ী থাকবে)
+    # ১. ইউজারকে ফাইনাল সাকসেস রসিদ পাঠানো (কোনো Inline Keyboard/Menu ছাড়া)
     user_msg_text = txt["tx_success"].format(
         tx_id=tx_id, coin=c['label'], amt=amt, method=method, num=num, taka=net_taka
     )
     
     if update.callback_query:
-        await update.callback_query.message.reply_text(user_msg_text, reply_markup=get_main_inline_keyboard(lang), parse_mode="HTML")
+        await update.callback_query.message.reply_text(user_msg_text, parse_mode="HTML")
     else:
-        await update.message.reply_text(user_msg_text, reply_markup=get_main_inline_keyboard(lang), parse_mode="HTML")
+        await update.message.reply_text(user_msg_text, parse_mode="HTML")
 
     # ২. ৩ সেকেন্ডের মধ্যে চ্যাটের আগের সমস্ত মেসেজ ডিলিট করা
     asyncio.create_task(delete_messages_after_delay(context, user_id, temp_ids, delay=3))
-    context.user_data["temp_msg_ids"] = [] # ট্র্যাকিং ক্লিয়ার করা
+    context.user_data["temp_msg_ids"] = []
 
     # ৩. এডমিনকে নোটিফিকেশন পাঠানো
     info_type = "🎟 <b>Coupon Code:</b>" if key == "topfollows" else "👤 <b>Sender Username:</b>"
@@ -831,19 +787,40 @@ async def delete_msg_after_delay(application: Application, chat_id: int, message
     except Exception:
         pass
 
+# --- ১৩. টেলিগ্রাম মেনু বাটন কনফিগারেশন ---
 async def post_init(application: Application):
+    # টেলিগ্রাম অ্যাপে ইনপুট বক্সের পাশে Menu বাটন যোগ করা
+    commands = [
+        BotCommand("start", "👋 Start Bot"),
+        BotCommand("sell", "🛒 Sell Coins"),
+        BotCommand("rates", "📊 Live Market Rates"),
+        BotCommand("history", "📜 My Transaction History"),
+        BotCommand("leaderboard", "🏆 Public Leaderboard"),
+        BotCommand("language", "🌐 Change Language"),
+        BotCommand("support", "👨‍💻 Support Center")
+    ]
+    await application.bot.set_my_commands(commands)
     asyncio.create_task(auto_ping_task(application))
 
-# --- ১৩. বট মেইন এক্সিকিউশন ---
+# --- ১৪. বট মেইন এক্সিকিউশন ---
 def main():
     app = Application.builder().token(BOT_TOKEN).post_init(post_init).build()
 
+    # Command Handlers
     app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("sell", sell_command))
+    app.add_handler(CommandHandler("rates", rates_command))
+    app.add_handler(CommandHandler("history", history_command))
+    app.add_handler(CommandHandler("leaderboard", leaderboard_command))
+    app.add_handler(CommandHandler("language", language_command))
+    app.add_handler(CommandHandler("support", support_command))
     app.add_handler(CommandHandler("admin", admin_panel))
+    
+    # Callback & Message Handlers
     app.add_handler(CallbackQueryHandler(handle_callbacks))
     app.add_handler(MessageHandler(filters.TEXT | filters.PHOTO, handle_inputs))
 
-    print("Bot is running with 100% Reliable Clean Chat & Stylish Bold Receipt UI...")
+    print("Bot is running cleanly with Telegram Native Menu Button...")
     app.run_polling()
 
 if __name__ == "__main__":
