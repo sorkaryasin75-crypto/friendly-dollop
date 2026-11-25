@@ -59,7 +59,7 @@ MESSAGES = {
         "enter_buy_trx": (
             "💳 <b>Send <code>{total} ৳</code> via {method}</b>\n"
             "📞 <b>Wallet Number:</b> <code>{num}</code>\n\n"
-            "🧾 <b>Enter your Sender Number & TrxID (e.g., 017XXXXXXXX - TRX123456):</b>"
+            "🧾 <b>Enter your Sender Number & TrxID (e.g., 01766952732 - TRX123456):</b>"
         ),
         "sell_success": (
             "🎉 <b>SALE REQUEST SUBMITTED!</b>\n\n"
@@ -165,10 +165,10 @@ MESSAGES = {
 }
 
 ADMIN_PAYMENT_NUMBERS = {
-    "bKash": "01700000000",
-    "Nagad": "01800000000",
-    "Rocket": "01900000000",
-    "Upay": "01600000000",
+    "bKash": "01766952732",
+    "Nagad": "01766952732",
+    "Rocket": "01766952732",
+    "Upay": "01766952732",
 }
 
 # --- ৩. SQLite ডাটাবেজ সেটআপ ---
@@ -201,10 +201,10 @@ def init_db():
 
     # আপনার দেওয়া লাইভ রেট অনুযায়ী ডিফল্ট কয়েন তালিকা
     default_coins = [
-        ("niva", "Niva Coin", 3.0, 4.0, 1, "sell_point_it"),
-        ("newtop", "NewTop Coin", 21.0, 24.0, 1, "AdminNewTopID"),
+        ("niva", "Niva Coin", 3.5, 4.0, 1, "sell_point_it"),
+        ("newtop", "NewTop Coin", 21.0, 24.0, 1, "thiago___monteiroofc"),
         ("topfollows", "Topfollows Coin", 2.0, 3.0, 1, "N/A"),
-        ("ns", "NS Coin", 9.5, 11.5, 1, "himelorkar019"),
+        ("ns", "NS Coin", 22.5, 25.5, 1, "himelorkar019"),
         ("nexa", "Nexa Coin", 9.0, 11.0, 1, "AdminNexaID"),
         ("coinsta", "Coinsta Coin", 19.5, 22.0, 1, "AdminCoinstaID"),
         ("coinova", "Coinova Coin", 14.0, 16.5, 1, "AdminCoinovaID"),
